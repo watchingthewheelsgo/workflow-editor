@@ -79,12 +79,10 @@ const PanelContextmenu = () => {
         >
           {t('workflow.nodes.note.addNote')}
         </div>
+        {/* Disabled options in standalone mode */}
         <div
-          className='flex h-8 cursor-pointer items-center justify-between rounded-lg px-3 text-sm text-text-secondary hover:bg-state-base-hover'
-          onClick={() => {
-            handleStartWorkflowRun()
-            handlePaneContextmenuCancel()
-          }}
+          className='flex h-8 cursor-not-allowed items-center justify-between rounded-lg px-3 text-sm text-text-tertiary opacity-50'
+          title={t('workflow.common.disabledInStandaloneMode') || 'Disabled in standalone mode'}
         >
           {t('workflow.common.run')}
           <ShortcutsName keys={['alt', 'r']} />
@@ -93,16 +91,8 @@ const PanelContextmenu = () => {
       <Divider className='m-0' />
       <div className='p-1'>
         <div
-          className={cn(
-            'flex h-8 cursor-pointer items-center justify-between rounded-lg px-3 text-sm text-text-secondary',
-            !clipboardElements.length ? 'cursor-not-allowed opacity-50' : 'hover:bg-state-base-hover',
-          )}
-          onClick={() => {
-            if (clipboardElements.length) {
-              handleNodesPaste()
-              handlePaneContextmenuCancel()
-            }
-          }}
+          className='flex h-8 cursor-not-allowed items-center justify-between rounded-lg px-3 text-sm text-text-tertiary opacity-50'
+          title={t('workflow.common.disabledInStandaloneMode') || 'Disabled in standalone mode'}
         >
           {t('workflow.common.pasteHere')}
           <ShortcutsName keys={['ctrl', 'v']} />
@@ -111,14 +101,14 @@ const PanelContextmenu = () => {
       <Divider className='m-0' />
       <div className='p-1'>
         <div
-          className='flex h-8 cursor-pointer items-center justify-between rounded-lg px-3 text-sm text-text-secondary hover:bg-state-base-hover'
-          onClick={() => exportCheck?.()}
+          className='flex h-8 cursor-not-allowed items-center justify-between rounded-lg px-3 text-sm text-text-tertiary opacity-50'
+          title={t('workflow.common.disabledInStandaloneMode') || 'Disabled in standalone mode'}
         >
           {t('app.export')}
         </div>
         <div
-          className='flex h-8 cursor-pointer items-center justify-between rounded-lg px-3 text-sm text-text-secondary hover:bg-state-base-hover'
-          onClick={() => setShowImportDSLModal(true)}
+          className='flex h-8 cursor-not-allowed items-center justify-between rounded-lg px-3 text-sm text-text-tertiary opacity-50'
+          title={t('workflow.common.disabledInStandaloneMode') || 'Disabled in standalone mode'}
         >
           {t('workflow.common.importDSL')}
         </div>

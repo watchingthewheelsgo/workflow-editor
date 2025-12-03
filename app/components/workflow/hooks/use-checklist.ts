@@ -214,7 +214,10 @@ export const useChecklist = (nodes: Node[], edges: Edge[]) => {
       }
     }
 
-    const isRequiredNodesType = Object.keys(nodesExtraData!).filter((key: any) => (nodesExtraData as any)[key].metaData.isRequired)
+    const isRequiredNodesType = Object.keys(nodesExtraData!).filter((key: any) => {
+      const nodeData = (nodesExtraData as any)[key]
+      return nodeData && nodeData.metaData && nodeData.metaData.isRequired
+    })
 
     isRequiredNodesType.forEach((type: string) => {
       if (!filteredNodes.find(node => node.data.type === type)) {
@@ -387,7 +390,10 @@ export const useChecklistBeforePublish = () => {
       }
     }
 
-    const isRequiredNodesType = Object.keys(nodesExtraData!).filter((key: any) => (nodesExtraData as any)[key].metaData.isRequired)
+    const isRequiredNodesType = Object.keys(nodesExtraData!).filter((key: any) => {
+      const nodeData = (nodesExtraData as any)[key]
+      return nodeData && nodeData.metaData && nodeData.metaData.isRequired
+    })
 
     for (let i = 0; i < isRequiredNodesType.length; i++) {
       const type = isRequiredNodesType[i]

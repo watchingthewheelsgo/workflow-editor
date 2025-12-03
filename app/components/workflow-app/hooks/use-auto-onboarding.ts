@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { useStoreApi } from 'reactflow'
 import { useWorkflowStore } from '@/app/components/workflow/store'
 
@@ -7,33 +7,9 @@ export const useAutoOnboarding = () => {
   const workflowStore = useWorkflowStore()
 
   const checkAndShowOnboarding = useCallback(() => {
-    const { getNodes } = store.getState()
-    const {
-      showOnboarding,
-      hasShownOnboarding,
-      notInitialWorkflow,
-      setShowOnboarding,
-      setHasShownOnboarding,
-      setShouldAutoOpenStartNodeSelector,
-    } = workflowStore.getState()
-
-    // Skip if already showing onboarding or it's the initial workflow creation
-    if (showOnboarding || notInitialWorkflow)
-      return
-
-    const nodes = getNodes()
-
-    // Check if canvas is completely empty (no nodes at all)
-    // Only trigger onboarding when canvas is completely blank to avoid data loss
-    const isCompletelyEmpty = nodes.length === 0
-
-    // Show onboarding only if canvas is completely empty and we haven't shown it before in this session
-    if (isCompletelyEmpty && !hasShownOnboarding) {
-      setShowOnboarding?.(true)
-      setHasShownOnboarding?.(true)
-      setShouldAutoOpenStartNodeSelector?.(true)
-    }
-  }, [store, workflowStore])
+    // Disabled in standalone mode - no onboarding dialog
+    return
+  }, [])
 
   const handleOnboardingClose = useCallback(() => {
     const {
@@ -51,15 +27,8 @@ export const useAutoOnboarding = () => {
       setShouldAutoOpenStartNodeSelector?.(false)
   }, [workflowStore])
 
-  // Check on mount and when nodes change
-  useEffect(() => {
-    // Small delay to ensure the workflow data is loaded
-    const timer = setTimeout(() => {
-      checkAndShowOnboarding()
-    }, 500)
-
-    return () => clearTimeout(timer)
-  }, [checkAndShowOnboarding])
+  // Disabled in standalone mode
+  // useEffect removed
 
   return {
     checkAndShowOnboarding,

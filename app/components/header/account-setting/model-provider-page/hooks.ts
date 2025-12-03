@@ -130,22 +130,32 @@ export const useProviderCredentialsAndLoadBalancing = (
 }
 
 export const useModelList = (type: ModelTypeEnum) => {
-  const { data, mutate, isLoading } = useSWR(`/workspaces/current/models/model-types/${type}`, fetchModelList)
+  // Disabled in standalone mode - no model list needed
+  const { data, mutate, isLoading } = useSWR(
+    null, // Disable by passing null as key
+    null,
+    { fallbackData: { data: [] } }
+  )
 
   return {
-    data: data?.data || [],
+    data: [],
     mutate,
-    isLoading,
+    isLoading: false,
   }
 }
 
 export const useDefaultModel = (type: ModelTypeEnum) => {
-  const { data, mutate, isLoading } = useSWR(`/workspaces/current/default-model?model_type=${type}`, fetchDefaultModal)
+  // Disabled in standalone mode - no default model needed
+  const { data, mutate, isLoading } = useSWR(
+    null, // Disable by passing null as key
+    null,
+    { fallbackData: { data: undefined } }
+  )
 
   return {
-    data: data?.data,
+    data: undefined,
     mutate,
-    isLoading,
+    isLoading: false,
   }
 }
 

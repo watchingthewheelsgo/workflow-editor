@@ -9,18 +9,12 @@ import {
 import type { StartNodeType } from '../nodes/start/types'
 import {
   useNodesInteractions,
-  useNodesReadOnly,
   useWorkflowRun,
 } from '../hooks'
-import Divider from '../../base/divider'
-import type { RunAndHistoryProps } from './run-and-history'
-import RunAndHistory from './run-and-history'
 import EditingTitle from './editing-title'
-import EnvButton from './env-button'
 import VersionHistoryButton from './version-history-button'
 import { useInputFieldPanel } from '@/app/components/rag-pipeline/hooks'
 import ScrollToSelectedNodeButton from './scroll-to-selected-node-button'
-import GlobalVariableButton from './global-variable-button'
 
 export type HeaderInNormalProps = {
   components?: {
@@ -28,14 +22,13 @@ export type HeaderInNormalProps = {
     middle?: React.ReactNode
     chatVariableTrigger?: React.ReactNode
   }
-  runAndHistoryProps?: RunAndHistoryProps
+  runAndHistoryProps?: any // Keep type for compatibility but unused
 }
 const HeaderInNormal = ({
   components,
   runAndHistoryProps,
 }: HeaderInNormalProps) => {
   const workflowStore = useWorkflowStore()
-  const { nodesReadOnly } = useNodesReadOnly()
   const { handleNodeSelect } = useNodesInteractions()
   const setShowWorkflowVersionHistoryPanel = useStore(s => s.setShowWorkflowVersionHistoryPanel)
   const setShowEnvPanel = useStore(s => s.setShowEnvPanel)
@@ -72,14 +65,9 @@ const HeaderInNormal = ({
         <ScrollToSelectedNodeButton />
       </div>
       <div className='flex items-center gap-2'>
-        {components?.left}
-        <Divider type='vertical' className='mx-auto h-3.5' />
-        <RunAndHistory {...runAndHistoryProps} />
-        <div className='shrink-0 cursor-pointer rounded-lg border-[0.5px] border-components-button-secondary-border bg-components-button-secondary-bg shadow-xs backdrop-blur-[10px]'>
-          {components?.chatVariableTrigger}
-          <EnvButton disabled={nodesReadOnly} />
-          <GlobalVariableButton disabled={nodesReadOnly} />
-        </div>
+        {/* Removed: RunAndHistory (test run, run history, checklist) */}
+        {/* Removed: EnvButton (environment variables) */}
+        {/* Removed: GlobalVariableButton */}
         {components?.middle}
         <VersionHistoryButton onClick={onStartRestoring} />
       </div>

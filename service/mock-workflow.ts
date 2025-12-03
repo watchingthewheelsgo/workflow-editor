@@ -1,6 +1,6 @@
 /**
- * Mock Workflow Service - Local In-Memory Implementation
- * Replaces backend API calls with local state management
+ * Mock Workflow Service - Local Storage Implementation
+ * Replaces backend API calls with localStorage persistence
  */
 
 import type {
@@ -13,12 +13,44 @@ import type {
 import type { CommonResponse } from '@/models/common'
 import type { BlockEnum } from '@/app/components/workflow/types'
 
-// In-memory storage for workflow data
-let workflowDraft: FetchWorkflowDraftResponse | null = null
-let workflowVersions: Array<FetchWorkflowDraftResponse & { id: string; created_at: number; marked_name?: string; marked_comment?: string }> = []
-let conversationVars: VarInInspect[] = []
-let systemVars: VarInInspect[] = []
-let allVars: VarInInspect[] = []
+// localStorage keys
+const STORAGE_KEYS = {
+  WORKFLOW_DRAFT: 'workflow-editor:draft',
+  WORKFLOW_VERSIONS: 'workflow-editor:versions',
+  CONVERSATION_VARS: 'workflow-editor:conversation-vars',
+  SYSTEM_VARS: 'workflow-editor:system-vars',
+  ALL_VARS: 'workflow-editor:all-vars',
+}
+
+// Helper functions for localStorage
+const isBrowser = typeof window !== 'undefined'
+
+const loadFromStorage = <T>(key: string, defaultValue: T): T => {
+  if (!isBrowser) return defaultValue
+  try {
+    const item = localStorage.getItem(key)
+    return item ? JSON.parse(item) : defaultValue
+  } catch (error) {
+    console.error(`Error loading from localStorage (${key}):`, error)
+    return defaultValue
+  }
+}
+
+const saveToStorage = <T>(key: string, value: T): void => {
+  if (!isBrowser) return
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch (error) {
+    console.error(`Error saving to localStorage (${key}):`, error)
+  }
+}
+
+// In-memory storage for workflow data (initialized from localStorage)
+let workflowDraft: FetchWorkflowDraftResponse | null = loadFromStorage(STORAGE_KEYS.WORKFLOW_DRAFT, null)
+let workflowVersions: Array<FetchWorkflowDraftResponse & { id: string; created_at: number; marked_name?: string; marked_comment?: string }> = loadFromStorage(STORAGE_KEYS.WORKFLOW_VERSIONS, [])
+let conversationVars: VarInInspect[] = loadFromStorage(STORAGE_KEYS.CONVERSATION_VARS, [])
+let systemVars: VarInInspect[] = loadFromStorage(STORAGE_KEYS.SYSTEM_VARS, [])
+let allVars: VarInInspect[] = loadFromStorage(STORAGE_KEYS.ALL_VARS, [])
 
 /**
  * Initialize with default empty workflow
@@ -101,6 +133,9 @@ export const syncWorkflowDraft = async (params: Pick<FetchWorkflowDraftResponse,
     hash: newHash,
   }
 
+  // Save to localStorage
+  saveToStorage(STORAGE_KEYS.WORKFLOW_DRAFT, workflowDraft)
+
   return {
     result: 'success',
     updated_at: now,
@@ -156,6 +191,9 @@ export const publishWorkflow = async (title?: string, releaseNotes?: string): Pr
 
   // Add to beginning of versions array
   workflowVersions.unshift(version)
+
+  // Save to localStorage
+  saveToStorage(STORAGE_KEYS.WORKFLOW_VERSIONS, workflowVersions)
 
   return {
     result: 'success',

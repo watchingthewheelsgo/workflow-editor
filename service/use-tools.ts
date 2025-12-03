@@ -69,7 +69,11 @@ const useAllWorkflowToolsKey = [NAME_SPACE, 'workflowTools']
 export const useAllWorkflowTools = () => {
   return useQuery<ToolWithProvider[]>({
     queryKey: useAllWorkflowToolsKey,
-    queryFn: () => get<ToolWithProvider[]>('/workspaces/current/tools/workflow'),
+    queryFn: () => {
+      console.warn('[Mock] Workflow tools disabled in standalone mode')
+      return Promise.resolve([])
+    },
+    enabled: false, // Disabled in standalone mode
   })
 }
 
@@ -81,7 +85,11 @@ const useAllMCPToolsKey = [NAME_SPACE, 'MCPTools']
 export const useAllMCPTools = () => {
   return useQuery<ToolWithProvider[]>({
     queryKey: useAllMCPToolsKey,
-    queryFn: () => get<ToolWithProvider[]>('/workspaces/current/tools/mcp'),
+    queryFn: () => {
+      console.warn('[Mock] MCP tools disabled in standalone mode')
+      return Promise.resolve([])
+    },
+    enabled: false, // Disabled in standalone mode
   })
 }
 

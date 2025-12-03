@@ -45,7 +45,7 @@ const Header = () => {
 
   const renderLogo = () => (
     <h1>
-      <Link href="/apps" className='flex h-8 shrink-0 items-center justify-center px-0.5 indent-[-9999px]'>
+      <Link href="/workflow-editor" className='flex h-8 shrink-0 items-center justify-center px-0.5 indent-[-9999px]'>
         {systemFeatures.branding.enabled && systemFeatures.branding.workspace_logo
           ? <img
             src={systemFeatures.branding.workspace_logo}
@@ -53,7 +53,7 @@ const Header = () => {
             alt='logo'
           />
           : <DifyLogo />}
-        {isBrandingEnabled && systemFeatures.branding.application_title ? systemFeatures.branding.application_title : 'dify'}
+        {isBrandingEnabled && systemFeatures.branding.application_title ? systemFeatures.branding.application_title : 'Workflow Editor'}
       </Link>
     </h1>
   )

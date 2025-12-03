@@ -78,9 +78,9 @@ export const useWorkflowInit = () => {
             const isAdvancedChat = appDetail.mode === AppModeEnum.ADVANCED_CHAT
             workflowStore.setState({
               notInitialWorkflow: true,
-              showOnboarding: !isAdvancedChat,
-              shouldAutoOpenStartNodeSelector: !isAdvancedChat,
-              hasShownOnboarding: false,
+              showOnboarding: false, // Disabled in standalone mode
+              shouldAutoOpenStartNodeSelector: false, // Disabled in standalone mode
+              hasShownOnboarding: true, // Mark as shown to prevent future triggers
             })
             const nodesData = isAdvancedChat ? nodesTemplate : []
             const edgesData = isAdvancedChat ? edgesTemplate : []
@@ -116,12 +116,10 @@ export const useWorkflowInit = () => {
     try {
       const nodesDefaultConfigsData = await fetchNodesDefaultConfigs(`/apps/${appDetail?.id}/workflows/default-workflow-block-configs`)
       const publishedWorkflow = await fetchPublishedWorkflow(`/apps/${appDetail?.id}/workflows/publish`)
+
+      // nodesDefaultConfigsData is already an object, not an array
       workflowStore.setState({
-        nodesDefaultConfigs: nodesDefaultConfigsData.reduce((acc, block) => {
-          if (!acc[block.type])
-            acc[block.type] = { ...block.config }
-          return acc
-        }, {} as Record<string, any>),
+        nodesDefaultConfigs: nodesDefaultConfigsData || {},
       })
       workflowStore.getState().setPublishedAt(publishedWorkflow?.created_at)
       const graph = publishedWorkflow?.graph

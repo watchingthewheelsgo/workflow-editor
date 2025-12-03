@@ -72,10 +72,10 @@ export const useAllTriggerPlugins = (enabled = true) => {
   return useQuery<TriggerWithProvider[]>({
     queryKey: [NAME_SPACE, 'all'],
     queryFn: async () => {
-      const response = await get<TriggerProviderApiEntity[]>('/workspaces/current/triggers')
-      return response.map(convertToTriggerWithProvider)
+      console.warn('[Mock] All trigger plugins disabled in standalone mode')
+      return []
     },
-    enabled,
+    enabled: false, // Disabled in standalone mode
     staleTime: 0,
     gcTime: 0,
   })
@@ -85,10 +85,10 @@ export const useTriggerPluginsByType = (triggerType: string, enabled = true) => 
   return useQuery<TriggerWithProvider[]>({
     queryKey: [NAME_SPACE, 'byType', triggerType],
     queryFn: async () => {
-      const response = await get<TriggerProviderApiEntity[]>(`/workspaces/current/triggers?type=${triggerType}`)
-      return response.map(convertToTriggerWithProvider)
+      console.warn('[Mock] Trigger plugins disabled in standalone mode')
+      return []
     },
-    enabled: enabled && !!triggerType,
+    enabled: false, // Disabled in standalone mode
   })
 }
 

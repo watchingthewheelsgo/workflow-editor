@@ -103,7 +103,11 @@ export type SchemaTypeDefinition = {
 export const useSchemaTypeDefinitions = () => {
   return useQuery<SchemaTypeDefinition[]>({
     queryKey: [NAME_SPACE, 'schema-type-definitions'],
-    queryFn: () => get<SchemaTypeDefinition[]>('/spec/schema-definitions'),
+    queryFn: () => {
+      console.warn('[Mock] Schema type definitions disabled in standalone mode')
+      return Promise.resolve([])
+    },
+    enabled: false, // Disabled in standalone mode
   })
 }
 
