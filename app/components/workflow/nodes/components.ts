@@ -38,6 +38,10 @@ import ListFilterNode from './list-operator/node'
 import ListFilterPanel from './list-operator/panel'
 import AgentNode from './agent/node'
 import AgentPanel from './agent/panel'
+import MessageNode from './message/node'
+import MessagePanel from './message/panel'
+import SlotFillingNode from './slot-filling/node'
+import SlotFillingPanel from './slot-filling/panel'
 import DataSourceNode from './data-source/node'
 import DataSourcePanel from './data-source/panel'
 import KnowledgeBaseNode from './knowledge-base/node'
@@ -54,6 +58,7 @@ export const NodeComponentMap: Record<string, ComponentType<any>> = {
   [BlockEnum.End]: EndNode,
   [BlockEnum.Answer]: AnswerNode,
   [BlockEnum.LLM]: LLMNode,
+  [BlockEnum.Message]: MessageNode,
   [BlockEnum.KnowledgeRetrieval]: KnowledgeRetrievalNode,
   [BlockEnum.QuestionClassifier]: QuestionClassifierNode,
   [BlockEnum.IfElse]: IfElseNode,
@@ -70,6 +75,7 @@ export const NodeComponentMap: Record<string, ComponentType<any>> = {
   [BlockEnum.DocExtractor]: DocExtractorNode,
   [BlockEnum.ListFilter]: ListFilterNode,
   [BlockEnum.Agent]: AgentNode,
+  [BlockEnum.SlotFilling]: SlotFillingNode,
   [BlockEnum.DataSource]: DataSourceNode,
   [BlockEnum.KnowledgeBase]: KnowledgeBaseNode,
   [BlockEnum.TriggerSchedule]: TriggerScheduleNode,
@@ -82,6 +88,7 @@ export const PanelComponentMap: Record<string, ComponentType<any>> = {
   [BlockEnum.End]: EndPanel,
   [BlockEnum.Answer]: AnswerPanel,
   [BlockEnum.LLM]: LLMPanel,
+  [BlockEnum.Message]: MessagePanel,
   [BlockEnum.KnowledgeRetrieval]: KnowledgeRetrievalPanel,
   [BlockEnum.QuestionClassifier]: QuestionClassifierPanel,
   [BlockEnum.IfElse]: IfElsePanel,
@@ -98,6 +105,7 @@ export const PanelComponentMap: Record<string, ComponentType<any>> = {
   [BlockEnum.DocExtractor]: DocExtractorPanel,
   [BlockEnum.ListFilter]: ListFilterPanel,
   [BlockEnum.Agent]: AgentPanel,
+  [BlockEnum.SlotFilling]: SlotFillingPanel,
   [BlockEnum.DataSource]: DataSourcePanel,
   [BlockEnum.KnowledgeBase]: KnowledgeBasePanel,
   [BlockEnum.TriggerSchedule]: TriggerSchedulePanel,

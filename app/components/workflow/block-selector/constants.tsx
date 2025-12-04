@@ -68,6 +68,11 @@ export const BLOCKS: Block[] = [
   },
   {
     classification: BlockClassificationEnum.Default,
+    type: BlockEnum.Message,
+    title: 'Message',
+  },
+  {
+    classification: BlockClassificationEnum.Default,
     type: BlockEnum.KnowledgeRetrieval,
     title: 'Knowledge Retrieval',
   },
@@ -151,5 +156,10 @@ export const BLOCKS: Block[] = [
     classification: BlockClassificationEnum.Default,
     type: BlockEnum.Agent,
     title: 'Agent',
+  },
+  {
+    classification: BlockClassificationEnum.Default,
+    type: BlockEnum.SlotFilling,
+    title: 'Slot Filling',
   },
 ]

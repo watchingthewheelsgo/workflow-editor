@@ -54,3 +54,5 @@ package-lock.json
 # mise
 mise.toml
 
+public/fallback-*.js
+public/sw.js
