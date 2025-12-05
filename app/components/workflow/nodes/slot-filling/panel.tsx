@@ -98,7 +98,7 @@ const SlotFillingPanel: FC<NodePanelProps<SlotFillingNodeType>> = ({ id, data })
               onChange={handleTemperatureChange}
               min={0}
               max={1}
-              step={0.1}
+              amount={0.1}
               placeholder='0.0'
             />
           </div>
@@ -187,7 +187,7 @@ const SlotFillingPanel: FC<NodePanelProps<SlotFillingNodeType>> = ({ id, data })
                   onChange={handleValidationTemperatureChange}
                   min={0}
                   max={1}
-                  step={0.1}
+                  amount={0.1}
                   placeholder='0.0'
                 />
               </div>

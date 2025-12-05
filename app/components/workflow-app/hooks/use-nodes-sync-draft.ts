@@ -4,9 +4,7 @@ import { useStoreApi } from 'reactflow'
 import { useWorkflowStore } from '@/app/components/workflow/store'
 import { useNodesReadOnly } from '@/app/components/workflow/hooks/use-workflow'
 import { useSerialAsyncCallback } from '@/app/components/workflow/hooks/use-serial-async-callback'
-import { syncWorkflowDraft } from '@/service/workflow'
 import { useFeaturesStore } from '@/app/components/base/features/hooks'
-import { API_PREFIX } from '@/config'
 import { useWorkflowRefreshDraft } from '.'
 
 export const useNodesSyncDraft = () => {
@@ -80,12 +78,21 @@ export const useNodesSyncDraft = () => {
   }, [store, featuresStore, workflowStore])
 
   const syncWorkflowDraftWhenPageClose = useCallback(() => {
+    // ============================================================
+    // SYNC DRAFT ON PAGE CLOSE TEMPORARILY DISABLED
+    // To re-enable: Remove the early return below and uncomment the code
+    // ============================================================
+    console.log('[Sync Draft] Page close sync temporarily disabled')
+    // ============================================================
+
+    /* Original implementation - commented out for temporary disable
     if (getNodesReadOnly())
       return
     const postParams = getPostParams()
 
     if (postParams)
       navigator.sendBeacon(`${API_PREFIX}${postParams.url}`, JSON.stringify(postParams.params))
+    */
   }, [getPostParams, getNodesReadOnly])
 
   const performSync = useCallback(async (
@@ -96,6 +103,16 @@ export const useNodesSyncDraft = () => {
       onSettled?: () => void
     },
   ) => {
+    // ============================================================
+    // SYNC DRAFT TEMPORARILY DISABLED
+    // To re-enable: Remove the early return below and uncomment the code
+    // ============================================================
+    console.log('[Sync Draft] Temporarily disabled')
+    callback?.onSuccess?.()
+    callback?.onSettled?.()
+    // ============================================================
+
+    /* Original implementation - commented out for temporary disable
     if (getNodesReadOnly())
       return
     const postParams = getPostParams()
@@ -124,6 +141,7 @@ export const useNodesSyncDraft = () => {
         callback?.onSettled?.()
       }
     }
+    */
   }, [workflowStore, getPostParams, getNodesReadOnly, handleRefreshWorkflowDraft])
 
   const doSyncWorkflowDraft = useSerialAsyncCallback(performSync, getNodesReadOnly)
