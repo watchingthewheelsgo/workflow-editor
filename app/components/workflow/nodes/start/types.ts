@@ -1,5 +1,9 @@
-import type { CommonNodeType, InputVar } from '@/app/components/workflow/types'
+import type { CommonNodeType } from '@/app/components/workflow/types'
 
-export type StartNodeType = CommonNodeType & {
-  variables: InputVar[]
-}
+/**
+ * Start Node Type
+ * Start node is just a marker with no additional fields
+ * It marks the beginning of the workflow
+ */
+export type StartNodeType = CommonNodeType
+// No additional fields - Start is just a marker

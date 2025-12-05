@@ -49,6 +49,7 @@ import {
   useWorkflowReadOnly,
   useWorkflowRefreshDraft,
 } from './hooks'
+import { useWorkflowOrganize } from './hooks/use-workflow-interactions'
 import CustomNode from './nodes'
 import CustomNoteNode from './note-node'
 import { CUSTOM_NOTE_NODE } from './note-node/constants'
@@ -241,6 +242,20 @@ export const Workflow: FC<WorkflowProps> = memo(({
       document.removeEventListener('visibilitychange', handleSyncWorkflowDraftWhenPageClose)
     }
   }, [handleSyncWorkflowDraftWhenPageClose])
+
+  // Auto-layout on initial load for agent flow
+  const { handleLayout } = useWorkflowOrganize()
+  useEffect(() => {
+    const shouldAutoLayout = workflowStore.getState().shouldAutoLayout
+    if (shouldAutoLayout && nodes.length > 0) {
+      console.log('[Workflow] Auto-layouting nodes after loading agent flow')
+      // Small delay to ensure nodes are fully rendered
+      setTimeout(() => {
+        handleLayout()
+        workflowStore.setState({ shouldAutoLayout: false })
+      }, 300)
+    }
+  }, [nodes, handleLayout, workflowStore])
 
   useEventListener('keydown', (e) => {
     if ((e.key === 'd' || e.key === 'D') && (e.ctrlKey || e.metaKey))

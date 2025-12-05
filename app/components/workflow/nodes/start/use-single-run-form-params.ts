@@ -26,7 +26,7 @@ const useSingleRunFormParams = ({
 
   const forms = (() => {
     const forms: FormProps[] = []
-    const inputs: InputVar[] = payload.variables.map((item) => {
+    const inputs: InputVar[] = (payload.variables || []).map((item) => {
       return {
         ...item,
         getVarValueFromDependent: true,
@@ -62,7 +62,7 @@ const useSingleRunFormParams = ({
   })()
 
   const getDependentVars = () => {
-    const inputVars = payload.variables.map((item) => {
+    const inputVars = (payload.variables || []).map((item) => {
       return [id, item.variable]
     })
     const vars: ValueSelector[] = [...inputVars, ['sys', 'files']]

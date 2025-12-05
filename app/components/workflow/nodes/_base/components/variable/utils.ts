@@ -333,7 +333,7 @@ const formatItem = (
   }
   switch (data.type) {
     case BlockEnum.Start: {
-      const { variables } = data as StartNodeType
+      const { variables = [] } = data as StartNodeType
       res.vars = variables.map((v) => {
         const type = inputVarTypeToVarType(v.type)
         const varRes: Var = {
@@ -452,7 +452,7 @@ const formatItem = (
         ]
       }
       else {
-        res.vars = advanced_settings?.groups.map((group) => {
+        res.vars = advanced_settings?.groups?.map((group) => {
           return {
             variable: group.group_name,
             type: VarType.object,
@@ -463,7 +463,7 @@ const formatItem = (
               },
             ],
           }
-        })
+        }) || []
       }
       break
     }
@@ -482,7 +482,7 @@ const formatItem = (
         ]
       }
       else {
-        res.vars = advanced_settings?.groups.map((group) => {
+        res.vars = advanced_settings?.groups?.map((group) => {
           return {
             variable: group.group_name,
             type: VarType.object,
@@ -493,7 +493,7 @@ const formatItem = (
               },
             ],
           }
-        })
+        }) || []
       }
       break
     }
@@ -1272,7 +1272,7 @@ export const getNodeUsedVars = (node: Node): ValueSelector[] => {
     case BlockEnum.End: {
       res = (data as EndNodeType).outputs?.map((output) => {
         return output.value_selector
-      })
+      }) || []
       break
     }
     case BlockEnum.Answer: {

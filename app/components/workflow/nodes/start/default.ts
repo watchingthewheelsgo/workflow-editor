@@ -15,7 +15,8 @@ const metaData = genNodeMetaData({
 const nodeDefault: NodeDefault<StartNodeType> = {
   metaData,
   defaultValue: {
-    variables: [],
+    // variables is optional in agent-flow mode
+    // Legacy mode will set this value when needed
   },
   checkValid() {
     return {

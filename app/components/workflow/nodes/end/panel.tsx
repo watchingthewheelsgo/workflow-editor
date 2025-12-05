@@ -1,47 +1,25 @@
 import type { FC } from 'react'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import useConfig from './use-config'
 import type { EndNodeType } from './types'
-import VarList from '@/app/components/workflow/nodes/_base/components/variable/var-list'
-import Field from '@/app/components/workflow/nodes/_base/components/field'
-import AddButton from '@/app/components/base/button/add-button'
 import type { NodePanelProps } from '@/app/components/workflow/types'
 
 const i18nPrefix = 'workflow.nodes.end'
 
-const Panel: FC<NodePanelProps<EndNodeType>> = ({
-  id,
-  data,
-}) => {
+const Panel: FC<NodePanelProps<EndNodeType>> = () => {
   const { t } = useTranslation()
 
-  const {
-    readOnly,
-    inputs,
-    handleVarListChange,
-    handleAddVariable,
-  } = useConfig(id, data)
-
-  const outputs = inputs.outputs
   return (
     <div className='mt-2'>
       <div className='space-y-4 px-4 pb-4'>
-
-        <Field
-          title={t(`${i18nPrefix}.output.variable`)}
-          required
-          operations={
-            !readOnly ? <AddButton onClick={handleAddVariable} /> : undefined
-          }
-        >
-          <VarList
-            nodeId={id}
-            readonly={readOnly}
-            list={outputs}
-            onChange={handleVarListChange}
-          />
-        </Field>
+        <div className='rounded-lg bg-background-section-burn p-3'>
+          <div className='mb-1 text-sm font-medium text-text-secondary'>
+            {t(`${i18nPrefix}.title`) || 'End Node'}
+          </div>
+          <div className='text-xs text-text-tertiary'>
+            {t(`${i18nPrefix}.description`) || 'This node marks the end of the workflow. No configuration is required.'}
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -11,29 +11,15 @@ const metaData = genNodeMetaData({
 const nodeDefault: NodeDefault<EndNodeType> = {
   metaData,
   defaultValue: {
-    outputs: [],
+    // outputs is optional in agent-flow mode
+    // Legacy mode will set this value when needed
   },
-  checkValid(payload: EndNodeType, t: any) {
-    const outputs = payload.outputs || []
-
-    let errorMessage = ''
-    if (!outputs.length) {
-      errorMessage = t('workflow.errorMsg.fieldRequired', { field: t('workflow.nodes.end.output.variable') })
-    }
-    else {
-      const invalidOutput = outputs.find((output) => {
-        const variableName = output.variable?.trim()
-        const hasSelector = Array.isArray(output.value_selector) && output.value_selector.length > 0
-        return !variableName || !hasSelector
-      })
-
-      if (invalidOutput)
-        errorMessage = t('workflow.errorMsg.fieldRequired', { field: t('workflow.nodes.end.output.variable') })
-    }
-
+  checkValid() {
+    // End node does not require any configuration
+    // Always return valid
     return {
-      isValid: !errorMessage,
-      errorMessage,
+      isValid: true,
+      errorMessage: '',
     }
   },
 }

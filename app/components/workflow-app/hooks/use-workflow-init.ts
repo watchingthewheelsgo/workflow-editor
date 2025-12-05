@@ -3,6 +3,7 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { usePathname } from 'next/navigation'
 import {
   useStore,
   useWorkflowStore,
@@ -15,6 +16,8 @@ import {
   fetchWorkflowDraft,
   syncWorkflowDraft,
 } from '@/service/workflow'
+import { getAgentFlow } from '@/service/agent-flow'
+import { agentFlowToWorkflow } from '@/service/agent-flow-adapter'
 import type { FetchWorkflowDraftResponse } from '@/types/workflow'
 import { useWorkflowConfig } from '@/service/use-workflow'
 import type { FileUploadConfigResponse } from '@/models/common'
@@ -33,6 +36,7 @@ const hasConnectedUserInput = (nodes: Node[] = [], edges: Edge[] = []): boolean 
   return edges.some(edge => startNodeIds.includes(edge.source))
 }
 export const useWorkflowInit = () => {
+  const pathname = usePathname()
   const workflowStore = useWorkflowStore()
   const {
     nodes: nodesTemplate,
@@ -42,6 +46,12 @@ export const useWorkflowInit = () => {
   const setSyncWorkflowDraftHash = useStore(s => s.setSyncWorkflowDraftHash)
   const [data, setData] = useState<FetchWorkflowDraftResponse>()
   const [isLoading, setIsLoading] = useState(true)
+
+  // Detect if we're in agent-flow mode
+  const isAgentFlowMode = pathname.startsWith('/workflow-editor/')
+  const isNewAgentFlow = pathname === '/workflow-editor/new'
+  const agentFlowId = !isNewAgentFlow && isAgentFlowMode ? appDetail.id : null
+
   useEffect(() => {
     workflowStore.setState({ appId: appDetail.id, appName: appDetail.name })
   }, [appDetail.id, workflowStore])
@@ -57,6 +67,79 @@ export const useWorkflowInit = () => {
 
   const handleGetInitialWorkflowData = useCallback(async () => {
     try {
+      // Agent Flow Mode: Load from agent-flow backend
+      if (isAgentFlowMode && !isNewAgentFlow && agentFlowId) {
+        console.log('[Agent Flow] Loading agent flow:', agentFlowId)
+        const agentFlowData = await getAgentFlow(agentFlowId)
+        const convertedWorkflow = agentFlowToWorkflow(agentFlowData.workflow)
+
+        const res: FetchWorkflowDraftResponse = {
+          id: agentFlowData.agent_flow_id,
+          graph: convertedWorkflow.graph,
+          features: {},
+          created_at: Math.floor(new Date(agentFlowData.created_at).getTime() / 1000),
+          updated_at: Math.floor(new Date(agentFlowData.updated_at).getTime() / 1000),
+          created_by: { id: '', name: '', email: '' },
+          updated_by: { id: '', name: '', email: '' },
+          hash: '',
+          tool_published: false,
+          environment_variables: [],
+          conversation_variables: [],
+          version: '1.0',
+          marked_name: agentFlowData.name,
+          marked_comment: agentFlowData.goal,
+        }
+
+        setData(res)
+        workflowStore.setState({
+          envSecrets: {},
+          environmentVariables: [],
+          conversationVariables: [],
+          isWorkflowDataLoaded: true,
+          shouldAutoLayout: true, // Auto-layout after loading agent flow
+        })
+        setIsLoading(false)
+        return
+      }
+
+      // New Agent Flow Mode: Initialize with empty workflow
+      if (isNewAgentFlow) {
+        console.log('[Agent Flow] Initializing new agent flow')
+        const now = Math.floor(Date.now() / 1000)
+        const res: FetchWorkflowDraftResponse = {
+          id: 'new-agent-flow',
+          graph: {
+            nodes: [],
+            edges: [],
+            viewport: { x: 0, y: 0, zoom: 1 },
+          },
+          features: {},
+          created_at: now,
+          updated_at: now,
+          created_by: { id: '', name: '', email: '' },
+          updated_by: { id: '', name: '', email: '' },
+          hash: '',
+          tool_published: false,
+          environment_variables: [],
+          conversation_variables: [],
+          version: '1.0',
+          marked_name: '',
+          marked_comment: '',
+        }
+
+        setData(res)
+        workflowStore.setState({
+          envSecrets: {},
+          environmentVariables: [],
+          conversationVariables: [],
+          isWorkflowDataLoaded: true,
+          notInitialWorkflow: true,
+        })
+        setIsLoading(false)
+        return
+      }
+
+      // Legacy Mode: Use mock workflow service
       const res = await fetchWorkflowDraft(`/apps/${appDetail.id}/workflows/draft`)
       setData(res)
       workflowStore.setState({
@@ -72,15 +155,18 @@ export const useWorkflowInit = () => {
       setIsLoading(false)
     }
     catch (error: any) {
-      if (error && error.json && !error.bodyUsed && appDetail) {
+      console.error('[Workflow Init] Error loading workflow:', error)
+
+      // Only handle draft_workflow_not_exist in legacy mode
+      if (!isAgentFlowMode && error && error.json && !error.bodyUsed && appDetail) {
         error.json().then((err: any) => {
           if (err.code === 'draft_workflow_not_exist') {
             const isAdvancedChat = appDetail.mode === AppModeEnum.ADVANCED_CHAT
             workflowStore.setState({
               notInitialWorkflow: true,
-              showOnboarding: false, // Disabled in standalone mode
-              shouldAutoOpenStartNodeSelector: false, // Disabled in standalone mode
-              hasShownOnboarding: true, // Mark as shown to prevent future triggers
+              showOnboarding: false,
+              shouldAutoOpenStartNodeSelector: false,
+              hasShownOnboarding: true,
             })
             const nodesData = isAdvancedChat ? nodesTemplate : []
             const edgesData = isAdvancedChat ? edgesTemplate : []
@@ -105,14 +191,24 @@ export const useWorkflowInit = () => {
           }
         })
       }
+      else {
+        // For agent flow mode errors, show error and keep loading state
+        setIsLoading(false)
+      }
     }
-  }, [appDetail, nodesTemplate, edgesTemplate, workflowStore, setSyncWorkflowDraftHash])
+  }, [appDetail, nodesTemplate, edgesTemplate, workflowStore, setSyncWorkflowDraftHash, isAgentFlowMode, isNewAgentFlow, agentFlowId])
 
   useEffect(() => {
     handleGetInitialWorkflowData()
   }, [])
 
   const handleFetchPreloadData = useCallback(async () => {
+    // Skip preload data for agent flow mode
+    if (isAgentFlowMode) {
+      console.log('[Agent Flow] Skipping preload data (not applicable for agent flow)')
+      return
+    }
+
     try {
       const nodesDefaultConfigsData = await fetchNodesDefaultConfigs(`/apps/${appDetail?.id}/workflows/default-workflow-block-configs`)
       const publishedWorkflow = await fetchPublishedWorkflow(`/apps/${appDetail?.id}/workflows/publish`)
@@ -131,7 +227,7 @@ export const useWorkflowInit = () => {
       console.error(e)
       workflowStore.getState().setLastPublishedHasUserInput(false)
     }
-  }, [workflowStore, appDetail])
+  }, [workflowStore, appDetail, isAgentFlowMode])
 
   useEffect(() => {
     handleFetchPreloadData()
@@ -141,8 +237,14 @@ export const useWorkflowInit = () => {
     if (data) {
       workflowStore.getState().setDraftUpdatedAt(data.updated_at)
       workflowStore.getState().setToolPublished(data.tool_published)
+
+      // For agent flow mode, updated_at is also the published time
+      // Agent flow doesn't have draft concept, every update is a publish
+      if (isAgentFlowMode) {
+        workflowStore.getState().setPublishedAt(data.updated_at)
+      }
     }
-  }, [data, workflowStore])
+  }, [data, workflowStore, isAgentFlowMode])
 
   return {
     data,

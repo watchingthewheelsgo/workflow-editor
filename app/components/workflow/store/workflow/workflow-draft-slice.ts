@@ -23,6 +23,8 @@ export type WorkflowDraftSliceShape = {
   setIsSyncingWorkflowDraft: (isSyncingWorkflowDraft: boolean) => void
   isWorkflowDataLoaded: boolean
   setIsWorkflowDataLoaded: (loaded: boolean) => void
+  shouldAutoLayout: boolean
+  setShouldAutoLayout: (shouldAutoLayout: boolean) => void
   nodes: Node[]
   setNodes: (nodes: Node[]) => void
 }
@@ -39,6 +41,8 @@ export const createWorkflowDraftSlice: StateCreator<WorkflowDraftSliceShape> = s
   setIsSyncingWorkflowDraft: isSyncingWorkflowDraft => set(() => ({ isSyncingWorkflowDraft })),
   isWorkflowDataLoaded: false,
   setIsWorkflowDataLoaded: loaded => set(() => ({ isWorkflowDataLoaded: loaded })),
+  shouldAutoLayout: false,
+  setShouldAutoLayout: shouldAutoLayout => set(() => ({ shouldAutoLayout })),
   nodes: [],
   setNodes: nodes => set(() => ({ nodes })),
 })

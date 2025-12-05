@@ -21,7 +21,13 @@ const useConfig = (id: string, payload: StartNodeType) => {
   const { handleOutVarRenameChange, isVarUsedInNodes, removeUsedVarInNodes } = useWorkflow()
   const isChatMode = useIsChatMode()
 
-  const { inputs, setInputs } = useNodeCrud<StartNodeType>(id, payload)
+  // Ensure variables exists for agent-flow mode
+  const normalizedPayload: StartNodeType = {
+    ...payload,
+    variables: payload.variables || [],
+  }
+
+  const { inputs, setInputs } = useNodeCrud<StartNodeType>(id, normalizedPayload)
 
   const {
     deleteNodeInspectorVars,

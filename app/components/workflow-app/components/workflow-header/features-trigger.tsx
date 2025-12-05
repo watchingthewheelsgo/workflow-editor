@@ -4,6 +4,7 @@ import {
   useMemo,
 } from 'react'
 import { useEdges } from 'reactflow'
+import { usePathname, useRouter } from 'next/navigation'
 import { RiApps2AddLine } from '@remixicon/react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -43,10 +44,14 @@ import type { EndNodeType } from '@/app/components/workflow/nodes/end/types'
 import { useProviderContext } from '@/context/provider-context'
 import { Plan } from '@/app/components/billing/type'
 import useNodes from '@/app/components/workflow/store/workflow/use-nodes'
+import { createAgentFlow, updateAgentFlow, generateAgentFlowId } from '@/service/agent-flow'
+import { workflowToAgentFlowCreate, workflowToAgentFlowWorkflow } from '@/service/agent-flow-adapter'
 
 const FeaturesTrigger = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
+  const router = useRouter()
+  const pathname = usePathname()
   const isChatMode = useIsChatMode()
   const workflowStore = useWorkflowStore()
   const appDetail = useAppStore(s => s.appDetail)
@@ -59,16 +64,24 @@ const FeaturesTrigger = () => {
   const toolPublished = useStore(s => s.toolPublished)
   const lastPublishedHasUserInput = useStore(s => s.lastPublishedHasUserInput)
 
+  // Detect agent-flow mode
+  const isAgentFlowMode = pathname.startsWith('/workflow-editor/')
+  const isNewAgentFlow = pathname === '/workflow-editor/new'
+  const agentFlowId = !isNewAgentFlow && isAgentFlowMode ? appID : null
+
   const nodes = useNodes()
   const hasWorkflowNodes = nodes.length > 0
   const startNode = nodes.find(node => node.data.type === BlockEnum.Start)
   const endNode = nodes.find(node => node.data.type === BlockEnum.End)
-  const startVariables = (startNode as Node<StartNodeType>)?.data?.variables
+  // Start and End nodes no longer have variables/outputs fields
+  // They are just markers
   const edges = useEdges<CommonEdgeType>()
 
   const fileSettings = useFeatures(s => s.features.file)
+  // Start node no longer has variables field
+  // In agent-flow mode, workflows don't need input variables
   const variables = useMemo(() => {
-    const data = startVariables || []
+    const data: any[] = []
     if (fileSettings?.image?.enabled) {
       return [
         ...data,
@@ -82,8 +95,9 @@ const FeaturesTrigger = () => {
     }
 
     return data
-  }, [fileSettings?.image?.enabled, startVariables])
-  const endVariables = useMemo(() => (endNode as Node<EndNodeType>)?.data?.outputs || [], [endNode])
+  }, [fileSettings?.image?.enabled])
+  // End node no longer has outputs field
+  const endVariables = useMemo(() => [], [endNode])
 
   const { handleCheckBeforePublish } = useChecklistBeforePublish()
   const { handleSyncWorkflowDraft } = useNodesSyncDraft()
@@ -141,6 +155,87 @@ const FeaturesTrigger = () => {
 
   const updatePublishedWorkflow = useInvalidateAppWorkflow()
   const onPublish = useCallback(async (params?: PublishWorkflowParams) => {
+    // Check if we're in agent-flow mode
+    if (isAgentFlowMode) {
+      // Agent Flow Mode: Create or update agent flow
+      try {
+        if (needWarningNodes.length > 0) {
+          notify({ type: 'error', message: t('workflow.panel.checklistTip') })
+          throw new Error('Checklist has unresolved items')
+        }
+
+        // Get current workflow data - use nodes and edges from hooks
+        const currentNodes = nodes
+        const currentEdges = edges
+
+        // Build workflow draft response format
+        const now = Math.floor(Date.now() / 1000)
+        const workflowData = {
+          id: appID!,
+          graph: {
+            nodes: currentNodes,
+            edges: currentEdges,
+            viewport: { x: 0, y: 0, zoom: 1 },
+          },
+          features: {},
+          created_at: now,
+          updated_at: now,
+          created_by: { id: '', name: '', email: '' },
+          updated_by: { id: '', name: '', email: '' },
+          hash: '',
+          tool_published: false,
+          environment_variables: [],
+          conversation_variables: [],
+          version: '1.0',
+          marked_name: '',
+          marked_comment: '',
+        }
+
+        if (isNewAgentFlow) {
+          // Create new agent flow
+          console.log('[Agent Flow] Creating new agent flow')
+          const agentFlowId = generateAgentFlowId()
+          const createRequest = workflowToAgentFlowCreate(workflowData, {
+            agentFlowId,
+            name: params?.title || 'New Agent Flow',
+            goal: params?.releaseNotes || 'Agent flow created from workflow editor',
+          })
+
+          const result = await createAgentFlow(createRequest)
+          console.log('[Agent Flow] Created successfully:', result.agent_flow_id)
+
+          notify({ type: 'success', message: t('common.api.actionSuccess') })
+
+          // Redirect to edit page
+          router.push(`/workflow-editor/${result.agent_flow_id}`)
+        }
+        else if (agentFlowId) {
+          // Update existing agent flow
+          console.log('[Agent Flow] Updating agent flow:', agentFlowId)
+          const workflow = workflowToAgentFlowWorkflow(workflowData)
+
+          await updateAgentFlow(agentFlowId, {
+            name: params?.title,
+            goal: params?.releaseNotes,
+            workflow,
+          })
+
+          console.log('[Agent Flow] Updated successfully')
+          notify({ type: 'success', message: t('common.api.actionSuccess') })
+          // Update the published time (use current time in seconds)
+          const nowInSeconds = Math.floor(Date.now() / 1000)
+          workflowStore.getState().setPublishedAt(nowInSeconds)
+        }
+      }
+      catch (error: any) {
+        console.error('[Agent Flow] Publish error:', error)
+        notify({ type: 'error', message: error.message || 'Failed to publish agent flow' })
+        throw error
+      }
+      return
+    }
+
+    // Legacy mode: Original publish logic
     // First check if there are any items in the checklist
     // if (!validateBeforeRun())
     //   throw new Error('Checklist has unresolved items')
@@ -171,7 +266,26 @@ const FeaturesTrigger = () => {
     else {
       throw new Error('Checklist failed')
     }
-  }, [needWarningNodes, handleCheckBeforePublish, publishWorkflow, notify, appID, t, updatePublishedWorkflow, updateAppDetail, workflowStore, resetWorkflowVersionHistory, invalidateAppTriggers])
+  }, [
+    isAgentFlowMode,
+    isNewAgentFlow,
+    agentFlowId,
+    needWarningNodes,
+    nodes,
+    edges,
+    handleCheckBeforePublish,
+    publishWorkflow,
+    notify,
+    appID,
+    t,
+    updatePublishedWorkflow,
+    updateAppDetail,
+    workflowStore,
+    resetWorkflowVersionHistory,
+    invalidateAppTriggers,
+    hasUserInputNode,
+    router,
+  ])
 
   const onPublisherToggle = useCallback((state: boolean) => {
     if (state)
