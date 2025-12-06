@@ -21,13 +21,11 @@ const HelpLink = ({
     <TooltipPlus
       popupContent={t('common.userProfile.helpCenter')}
     >
-      <a
-        href={link}
-        target='_blank'
-        className='mr-1 flex h-6 w-6 items-center justify-center rounded-md hover:bg-state-base-hover'
+      <div
+        className='mr-1 flex h-6 w-6 cursor-not-allowed items-center justify-center rounded-md opacity-50'
       >
         <RiBookOpenLine className='h-4 w-4 text-gray-500' />
-      </a>
+      </div>
     </TooltipPlus>
 
   )

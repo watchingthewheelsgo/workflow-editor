@@ -14,7 +14,7 @@ import type {
   FetchWorkflowDraftResponse,
   Node,
 } from '@/types/workflow'
-import type { BlockEnum } from '@/app/components/workflow/types'
+import { BlockEnum } from '@/app/components/workflow/types'
 
 // ==================== Validation ====================
 
@@ -65,13 +65,13 @@ const mapNodeTypeToAgentFlow = (type: BlockEnum): string => {
  */
 const mapNodeTypeFromAgentFlow = (type: string): BlockEnum => {
   const mapping: Record<string, BlockEnum> = {
-    start: 'start',
-    end: 'end',
-    message: 'message',
-    router: 'if-else',
-    slot_filling: 'slot-filling',
+    start: BlockEnum.Start,
+    end: BlockEnum.End,
+    message: BlockEnum.Message,
+    router: BlockEnum.IfElse,
+    slot_filling: BlockEnum.SlotFilling,
   }
-  return mapping[type] || 'message'
+  return mapping[type] || BlockEnum.Message
 }
 
 // ==================== Node Conversion ====================

@@ -2,10 +2,11 @@ import {
   memo,
   useCallback,
   useMemo,
+  useState,
 } from 'react'
 import { useEdges } from 'reactflow'
 import { usePathname, useRouter } from 'next/navigation'
-import { RiApps2AddLine } from '@remixicon/react'
+import { RiApps2AddLine, RiSettings4Line } from '@remixicon/react'
 import { useTranslation } from 'react-i18next'
 import {
   useStore,
@@ -46,6 +47,7 @@ import { Plan } from '@/app/components/billing/type'
 import useNodes from '@/app/components/workflow/store/workflow/use-nodes'
 import { createAgentFlow, updateAgentFlow, generateAgentFlowId } from '@/service/agent-flow'
 import { workflowToAgentFlowCreate, workflowToAgentFlowWorkflow } from '@/service/agent-flow-adapter'
+import WorkflowMetaModal from './workflow-meta-modal'
 
 const FeaturesTrigger = () => {
   const { t } = useTranslation()
@@ -61,8 +63,11 @@ const FeaturesTrigger = () => {
   const { plan, isFetchedPlan } = useProviderContext()
   const publishedAt = useStore(s => s.publishedAt)
   const draftUpdatedAt = useStore(s => s.draftUpdatedAt)
-  const toolPublished = useStore(s => s.toolPublished)
-  const lastPublishedHasUserInput = useStore(s => s.lastPublishedHasUserInput)
+
+  // Workflow Meta state
+  const [showWorkflowMeta, setShowWorkflowMeta] = useState(false)
+  const [workflowName, setWorkflowName] = useState('')
+  const [workflowGoal, setWorkflowGoal] = useState('')
 
   // Detect agent-flow mode
   const isAgentFlowMode = pathname.startsWith('/workflow-editor/')
@@ -96,8 +101,6 @@ const FeaturesTrigger = () => {
 
     return data
   }, [fileSettings?.image?.enabled])
-  // End node no longer has outputs field
-  const endVariables = useMemo(() => [], [endNode])
 
   const { handleCheckBeforePublish } = useChecklistBeforePublish()
   const { handleSyncWorkflowDraft } = useNodesSyncDraft()
@@ -155,6 +158,18 @@ const FeaturesTrigger = () => {
 
   const updatePublishedWorkflow = useInvalidateAppWorkflow()
   const onPublish = useCallback(async (params?: PublishWorkflowParams) => {
+    // Check if name and goal are set
+    if (!workflowName.trim()) {
+      notify({ type: 'error', message: t('workflow.workflowMeta.nameRequired') })
+      setShowWorkflowMeta(true)
+      throw new Error('Workflow name is required')
+    }
+    if (!workflowGoal.trim()) {
+      notify({ type: 'error', message: t('workflow.workflowMeta.goalRequired') })
+      setShowWorkflowMeta(true)
+      throw new Error('Workflow goal is required')
+    }
+
     // Check if we're in agent-flow mode
     if (isAgentFlowMode) {
       // Agent Flow Mode: Create or update agent flow
@@ -197,8 +212,8 @@ const FeaturesTrigger = () => {
           const agentFlowId = generateAgentFlowId()
           const createRequest = workflowToAgentFlowCreate(workflowData, {
             agentFlowId,
-            name: params?.title || 'New Agent Flow',
-            goal: params?.releaseNotes || 'Agent flow created from workflow editor',
+            name: workflowName || params?.title || 'New Agent Flow',
+            goal: workflowGoal || params?.releaseNotes || 'Agent flow created from workflow editor',
           })
 
           const result = await createAgentFlow(createRequest)
@@ -215,8 +230,8 @@ const FeaturesTrigger = () => {
           const workflow = workflowToAgentFlowWorkflow(workflowData)
 
           await updateAgentFlow(agentFlowId, {
-            name: params?.title,
-            goal: params?.releaseNotes,
+            name: workflowName || params?.title,
+            goal: workflowGoal || params?.releaseNotes,
             workflow,
           })
 
@@ -285,6 +300,8 @@ const FeaturesTrigger = () => {
     invalidateAppTriggers,
     hasUserInputNode,
     router,
+    workflowName,
+    workflowGoal,
   ])
 
   const onPublisherToggle = useCallback((state: boolean) => {
@@ -292,9 +309,11 @@ const FeaturesTrigger = () => {
       handleSyncWorkflowDraft(true)
   }, [handleSyncWorkflowDraft])
 
-  const handleToolConfigureUpdate = useCallback(() => {
-    workflowStore.setState({ toolPublished: true })
-  }, [workflowStore])
+  const handleWorkflowMetaSave = useCallback((params: { name: string; goal: string }) => {
+    setWorkflowName(params.name)
+    setWorkflowGoal(params.goal)
+    notify({ type: 'success', message: t('common.api.actionSuccess') })
+  }, [notify, t])
 
   return (
     <>
@@ -311,24 +330,37 @@ const FeaturesTrigger = () => {
           {t('workflow.common.features')}
         </Button>
       )}
+      {/* Workflow Meta button */}
+      <Button
+        className={cn(
+          'text-components-button-secondary-text',
+          theme === 'dark' && 'rounded-lg border border-black/5 bg-white/10 backdrop-blur-sm',
+        )}
+        onClick={() => setShowWorkflowMeta(true)}
+      >
+        <RiSettings4Line className='mr-1 h-4 w-4 text-components-button-secondary-text' />
+        {t('workflow.workflowMeta.button')}
+      </Button>
       <AppPublisher
         {...{
           publishedAt,
           draftUpdatedAt,
           disabled: nodesReadOnly || !hasWorkflowNodes,
-          toolPublished,
-          inputs: variables,
-          outputs: endVariables,
-          onRefreshData: handleToolConfigureUpdate,
           onPublish,
           onToggle: onPublisherToggle,
-          workflowToolAvailable: lastPublishedHasUserInput,
           crossAxisOffset: 4,
           missingStartNode: !startNode,
           hasTriggerNode,
           startNodeLimitExceeded,
           publishDisabled: !hasWorkflowNodes || startNodeLimitExceeded,
         }}
+      />
+      <WorkflowMetaModal
+        isOpen={showWorkflowMeta}
+        onClose={() => setShowWorkflowMeta(false)}
+        onSave={handleWorkflowMetaSave}
+        initialName={workflowName}
+        initialGoal={workflowGoal}
       />
     </>
   )

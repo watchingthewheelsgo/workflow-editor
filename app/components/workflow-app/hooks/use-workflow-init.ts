@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from 'react'
 import { usePathname } from 'next/navigation'
@@ -46,6 +47,7 @@ export const useWorkflowInit = () => {
   const setSyncWorkflowDraftHash = useStore(s => s.setSyncWorkflowDraftHash)
   const [data, setData] = useState<FetchWorkflowDraftResponse>()
   const [isLoading, setIsLoading] = useState(true)
+  const loadedAgentFlowIdRef = useRef<string | null>(null)
 
   // Detect if we're in agent-flow mode
   const isAgentFlowMode = pathname.startsWith('/workflow-editor/')
@@ -69,7 +71,16 @@ export const useWorkflowInit = () => {
     try {
       // Agent Flow Mode: Load from agent-flow backend
       if (isAgentFlowMode && !isNewAgentFlow && agentFlowId) {
+        // Skip if we already loaded this agent flow
+        if (loadedAgentFlowIdRef.current === agentFlowId) {
+          console.log('[Agent Flow] Already loaded:', agentFlowId)
+          return
+        }
+
         console.log('[Agent Flow] Loading agent flow:', agentFlowId)
+        setIsLoading(true)
+        loadedAgentFlowIdRef.current = agentFlowId
+
         const agentFlowData = await getAgentFlow(agentFlowId)
         const convertedWorkflow = agentFlowToWorkflow(agentFlowData.workflow)
 
@@ -200,7 +211,16 @@ export const useWorkflowInit = () => {
 
   useEffect(() => {
     handleGetInitialWorkflowData()
-  }, [])
+  }, []) // Only run once on mount
+
+  // Separate effect to handle agentFlowId changes for reload
+  useEffect(() => {
+    // Only reload when agentFlowId changes in agent flow mode (not for new flows)
+    if (isAgentFlowMode && !isNewAgentFlow && agentFlowId && loadedAgentFlowIdRef.current !== agentFlowId) {
+      console.log('[Agent Flow] AgentFlowId changed, reloading:', agentFlowId)
+      handleGetInitialWorkflowData()
+    }
+  }, [agentFlowId, isAgentFlowMode, isNewAgentFlow, handleGetInitialWorkflowData])
 
   const handleFetchPreloadData = useCallback(async () => {
     // Skip preload data for agent flow mode

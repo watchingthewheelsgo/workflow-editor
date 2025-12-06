@@ -63,6 +63,11 @@ export const ENTRY_NODE_TYPES = [
 export const BLOCKS: Block[] = [
   {
     classification: BlockClassificationEnum.Default,
+    type: BlockEnum.Start,
+    title: 'Start',
+  },
+  {
+    classification: BlockClassificationEnum.Default,
     type: BlockEnum.LLM,
     title: 'LLM',
   },
@@ -70,6 +75,11 @@ export const BLOCKS: Block[] = [
     classification: BlockClassificationEnum.Default,
     type: BlockEnum.Message,
     title: 'Message',
+  },
+  {
+    classification: BlockClassificationEnum.Default,
+    type: BlockEnum.Router,
+    title: 'Router',
   },
   {
     classification: BlockClassificationEnum.Default,
@@ -151,11 +161,6 @@ export const BLOCKS: Block[] = [
     classification: BlockClassificationEnum.Utilities,
     type: BlockEnum.ListFilter,
     title: 'List Filter',
-  },
-  {
-    classification: BlockClassificationEnum.Default,
-    type: BlockEnum.Agent,
-    title: 'Agent',
   },
   {
     classification: BlockClassificationEnum.Default,

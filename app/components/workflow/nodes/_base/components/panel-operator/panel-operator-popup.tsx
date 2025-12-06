@@ -61,11 +61,11 @@ const PanelOperatorPopup = ({
   return (
     <div className='w-[240px] rounded-lg border-[0.5px] border-components-panel-border bg-components-panel-bg shadow-xl'>
       {
-        (showChangeBlock || canRunBySingle(data.type, isChildNode)) && (
+        (showChangeBlock || (canRunBySingle(data.type, isChildNode) && data.type !== BlockEnum.Start)) && (
           <>
             <div className='p-1'>
               {
-                canRunBySingle(data.type, isChildNode) && (
+                canRunBySingle(data.type, isChildNode) && data.type !== BlockEnum.Start && (
                   <div
                     className={`
                       flex h-8 cursor-pointer items-center rounded-lg px-3 text-sm text-text-secondary
@@ -170,13 +170,11 @@ const PanelOperatorPopup = ({
         showHelpLink && nodeMetaData.helpLinkUri && (
           <>
             <div className='p-1'>
-              <a
-                href={nodeMetaData.helpLinkUri}
-                target='_blank'
-                className='flex h-8 cursor-pointer items-center rounded-lg px-3 text-sm text-text-secondary hover:bg-state-base-hover'
+              <div
+                className='flex h-8 cursor-not-allowed items-center rounded-lg px-3 text-sm text-text-secondary opacity-50'
               >
                 {t('workflow.panel.helpLink')}
-              </a>
+              </div>
             </div>
             <div className='h-px bg-divider-regular'></div>
           </>

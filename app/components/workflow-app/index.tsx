@@ -4,6 +4,8 @@ import {
   useEffect,
   useMemo,
 } from 'react'
+import { I18nextProvider } from 'react-i18next'
+import i18n from '@/i18n-config/i18next-config'
 import {
   SupportUploadFileTypes,
 } from '@/app/components/workflow/types'
@@ -212,12 +214,19 @@ const WorkflowAppWithAdditionalContext = () => {
 }
 
 const WorkflowAppWrapper = () => {
+  // Force English language for the entire workflow editor
+  useEffect(() => {
+    i18n.changeLanguage('en-US')
+  }, [])
+
   return (
-    <WorkflowContextProvider
-      injectWorkflowStoreSliceFn={createWorkflowSlice as InjectWorkflowStoreSliceFn}
-    >
-      <WorkflowAppWithAdditionalContext />
-    </WorkflowContextProvider>
+    <I18nextProvider i18n={i18n}>
+      <WorkflowContextProvider
+        injectWorkflowStoreSliceFn={createWorkflowSlice as InjectWorkflowStoreSliceFn}
+      >
+        <WorkflowAppWithAdditionalContext />
+      </WorkflowContextProvider>
+    </I18nextProvider>
   )
 }
 

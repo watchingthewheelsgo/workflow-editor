@@ -15,9 +15,6 @@ const NodeSelectorWrapper = (props: NodeSelectorProps) => {
     const result = availableNodesMetaData?.nodes || []
 
     return result.filter((block) => {
-      if (block.metaData.type === BlockEnum.Start)
-        return false
-
       if (block.metaData.type === BlockEnum.DataSource)
         return false
 

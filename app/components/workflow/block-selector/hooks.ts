@@ -58,24 +58,11 @@ export const useTabs = ({
       key: TabsEnum.Blocks,
       name: t('workflow.tabs.blocks'),
       show: !noBlocks,
-    }, {
-      key: TabsEnum.Sources,
-      name: t('workflow.tabs.sources'),
-      show: !noSources,
-    }, {
-      key: TabsEnum.Tools,
-      name: t('workflow.tabs.tools'),
-      show: !noTools,
-    },
-    {
-      key: TabsEnum.Start,
-      name: t('workflow.tabs.start'),
-      show: shouldShowStartTab,
-      disabled: shouldDisableStartTab,
+      disabled: false,
     }]
 
     return tabConfigs.filter(tab => tab.show)
-  }, [t, noBlocks, noSources, noTools, shouldShowStartTab, shouldDisableStartTab])
+  }, [t, noBlocks])
 
   const getValidTabKey = useCallback((targetKey?: TabsEnum) => {
     if (!targetKey)

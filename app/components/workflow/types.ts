@@ -43,6 +43,7 @@ export enum BlockEnum {
   Agent = 'agent',
   Message = 'message',
   SlotFilling = 'slot-filling',
+  Router = 'router',
   Loop = 'loop',
   LoopStart = 'loop-start',
   LoopEnd = 'loop-end',

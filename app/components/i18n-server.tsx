@@ -10,7 +10,8 @@ export type II18NServerProps = {
 const I18NServer = async ({
   children,
 }: II18NServerProps) => {
-  const locale = await getLocaleOnServer()
+  // Force English locale for the entire application
+  const locale = 'en-US'
 
   return (
     <I18N {...{ locale }}>

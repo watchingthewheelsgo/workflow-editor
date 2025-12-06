@@ -13,13 +13,20 @@ export enum TabType {
 type Props = {
   value: TabType,
   onChange: (value: TabType) => void
+  hideTabs?: boolean // Add option to hide tabs completely
 }
 
 const Tab: FC<Props> = ({
   value,
   onChange,
+  hideTabs = false,
 }) => {
   const { t } = useTranslation()
+
+  // If hideTabs is true, return null to hide the entire tab component
+  if (hideTabs)
+    return null
+
   return (
     <TabHeader
       items={[

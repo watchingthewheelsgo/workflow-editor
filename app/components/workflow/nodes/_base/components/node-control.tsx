@@ -11,7 +11,7 @@ import {
 import {
   useNodesInteractions,
 } from '../../../hooks'
-import { type Node, NodeRunningStatus } from '../../../types'
+import { type Node, NodeRunningStatus, BlockEnum } from '../../../types'
 import { canRunBySingle } from '../../../utils'
 import PanelOperator from './panel-operator'
 import {
@@ -49,7 +49,7 @@ const NodeControl: FC<NodeControlProps> = ({
         onClick={e => e.stopPropagation()}
       >
         {
-          canRunBySingle(data.type, isChildNode) && (
+          canRunBySingle(data.type, isChildNode) && data.type !== BlockEnum.Start && (
             <div
               className={`flex h-5 w-5 items-center justify-center rounded-md ${isSingleRunning && 'cursor-pointer hover:bg-state-base-hover'}`}
               onClick={() => {

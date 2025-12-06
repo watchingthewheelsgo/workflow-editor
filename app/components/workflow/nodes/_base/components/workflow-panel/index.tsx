@@ -186,7 +186,7 @@ const BasePanel: FC<BasePanelProps> = ({
   }, [handleNodeDataUpdateWithSyncDraft, id, saveStateToHistory])
 
   const isChildNode = !!(data.isInIteration || data.isInLoop)
-  const isSupportSingleRun = canRunBySingle(data.type, isChildNode)
+  const isSupportSingleRun = canRunBySingle(data.type, isChildNode) && data.type !== BlockEnum.Start
   const appDetail = useAppStore(state => state.appDetail)
 
   const hasClickRunning = useRef(false)
@@ -365,6 +365,11 @@ const BasePanel: FC<BasePanelProps> = ({
     return !pluginDetail ? null : <ReadmeEntrance pluginDetail={pluginDetail as any} className='mt-auto' />
   }, [data.type, currToolCollection, currentDataSource, currentTriggerPlugin])
 
+  // Hide tabs for Start and End nodes
+  const shouldHideTabs = useMemo(() => {
+    return data.type === BlockEnum.Start || data.type === BlockEnum.End
+  }, [data.type])
+
   const selectedNode = useMemo(() => ({
     id,
     data,
@@ -531,6 +536,7 @@ const BasePanel: FC<BasePanelProps> = ({
                   <Tab
                     value={tabType}
                     onChange={setTabType}
+                    hideTabs={shouldHideTabs}
                   />
                   <AuthorizedInNode
                     pluginPayload={{
@@ -556,6 +562,7 @@ const BasePanel: FC<BasePanelProps> = ({
                   <Tab
                     value={tabType}
                     onChange={setTabType}
+                    hideTabs={shouldHideTabs}
                   />
                   <AuthorizedInDataSourceNode
                     onJumpToDataSourcePage={handleJumpToDataSourcePage}
@@ -574,6 +581,7 @@ const BasePanel: FC<BasePanelProps> = ({
                 <Tab
                   value={tabType}
                   onChange={setTabType}
+                  hideTabs={shouldHideTabs}
                 />
               </TriggerSubscription>
             )
@@ -584,6 +592,7 @@ const BasePanel: FC<BasePanelProps> = ({
                 <Tab
                   value={tabType}
                   onChange={setTabType}
+                  hideTabs={shouldHideTabs}
                 />
               </div>
             )
