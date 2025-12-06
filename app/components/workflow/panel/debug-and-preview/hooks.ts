@@ -8,6 +8,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { produce, setAutoFreeze } from 'immer'
 import { uniqBy } from 'lodash-es'
+import { v4 as uuidv4 } from 'uuid'
 import {
   useSetWorkflowVarsWithValue,
   useWorkflowRun,
@@ -97,7 +98,7 @@ export const useChat = (
       }
       else {
         ret.unshift({
-          id: `${Date.now()}`,
+          id: uuidv4(),
           content: getIntroduction(config.opening_statement),
           isAnswer: true,
           isOpeningStatement: true,
@@ -208,7 +209,7 @@ export const useChat = (
 
     const parentMessage = threadMessages.find(item => item.id === params.parent_message_id)
 
-    const placeholderQuestionId = `question-${Date.now()}`
+    const placeholderQuestionId = `question-${uuidv4()}`
     const questionItem = {
       id: placeholderQuestionId,
       content: params.query,
@@ -217,7 +218,7 @@ export const useChat = (
       parentMessageId: params.parent_message_id,
     }
 
-    const placeholderAnswerId = `answer-placeholder-${Date.now()}`
+    const placeholderAnswerId = `answer-placeholder-${uuidv4()}`
     const placeholderAnswerItem = {
       id: placeholderAnswerId,
       content: '',

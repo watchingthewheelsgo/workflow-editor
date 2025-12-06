@@ -1,6 +1,7 @@
 import {
   Position,
 } from 'reactflow'
+import { v4 as uuidv4 } from 'uuid'
 import type {
   Node,
 } from '../types'
@@ -26,7 +27,7 @@ export function generateNewNode({ data, position, id, zIndex, type, ...rest }: O
   newLoopStartNode?: Node
 } {
   const newNode = {
-    id: id || `${Date.now()}`,
+    id: id || uuidv4(),
     type: type || CUSTOM_NODE,
     data,
     position,

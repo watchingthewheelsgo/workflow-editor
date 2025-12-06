@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid'
 import type { VarInInspect } from '@/types/workflow'
 import { VarInInspectType } from '@/types/workflow'
 import { VarType } from '../types'
@@ -13,7 +14,7 @@ export const outputToVarInInspect = ({
   value,
 }: OutputToVarInInspectParams): VarInInspect => {
   return {
-    id: `${Date.now()}`, // TODO: wait for api
+    id: uuidv4(),
     type: VarInInspectType.node,
     name,
     description: '',

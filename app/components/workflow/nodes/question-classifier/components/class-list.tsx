@@ -3,6 +3,7 @@ import type { FC } from 'react'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { produce } from 'immer'
 import { useTranslation } from 'react-i18next'
+import { v4 as uuidv4 } from 'uuid'
 import { useEdgesInteractions } from '../../../hooks'
 import AddButton from '../../_base/components/add-button'
 import Item from './class-item'
@@ -54,7 +55,7 @@ const ClassList: FC<Props> = ({
 
   const handleAddClass = useCallback(() => {
     const newList = produce(list, (draft) => {
-      draft.push({ id: `${Date.now()}`, name: '' })
+      draft.push({ id: uuidv4(), name: '' })
     })
     onChange(newList)
     setShouldScrollToEnd(true)
