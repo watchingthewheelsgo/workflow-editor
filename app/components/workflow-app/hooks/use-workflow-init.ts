@@ -70,7 +70,7 @@ export const useWorkflowInit = () => {
   const handleGetInitialWorkflowData = useCallback(async () => {
     try {
       // Agent Flow Mode: Load from agent-flow backend
-      if (isAgentFlowMode && !isNewAgentFlow && agentFlowId) {
+      if (isAgentFlowMode && !isNewAgentFlow && agentFlowId && agentFlowId !== 'new-agent-flow') {
         // Skip if we already loaded this agent flow
         if (loadedAgentFlowIdRef.current === agentFlowId) {
           console.log('[Agent Flow] Already loaded:', agentFlowId)
@@ -216,7 +216,7 @@ export const useWorkflowInit = () => {
   // Separate effect to handle agentFlowId changes for reload
   useEffect(() => {
     // Only reload when agentFlowId changes in agent flow mode (not for new flows)
-    if (isAgentFlowMode && !isNewAgentFlow && agentFlowId && loadedAgentFlowIdRef.current !== agentFlowId) {
+    if (isAgentFlowMode && !isNewAgentFlow && agentFlowId && agentFlowId !== 'new-agent-flow' && loadedAgentFlowIdRef.current !== agentFlowId) {
       console.log('[Agent Flow] AgentFlowId changed, reloading:', agentFlowId)
       handleGetInitialWorkflowData()
     }

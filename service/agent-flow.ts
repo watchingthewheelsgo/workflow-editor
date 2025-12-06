@@ -4,7 +4,22 @@
  */
 
 // API Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_AGENT_FLOW_API_BASE_URL || 'http://localhost:8000'
+const getApiBaseUrl = () => {
+  // If environment variable is explicitly set, use it
+  if (process.env.NEXT_PUBLIC_AGENT_FLOW_API_BASE_URL) {
+    return process.env.NEXT_PUBLIC_AGENT_FLOW_API_BASE_URL
+  }
+
+  // In production, use the production API
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://api.alignon.ai'
+  }
+
+  // In development, use localhost
+  return 'http://localhost:8000'
+}
+
+const API_BASE_URL = getApiBaseUrl()
 const API_PREFIX = '/api/v2'
 
 // ==================== Types ====================
