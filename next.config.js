@@ -134,7 +134,7 @@ const nextConfig = {
     return [
       {
         source: '/',
-        destination: '/apps',
+        destination: '/workflow-editor/new',
         permanent: false,
       },
     ]
