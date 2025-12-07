@@ -1,6 +1,7 @@
 import {
   memo,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from 'react'
@@ -73,6 +74,18 @@ const FeaturesTrigger = () => {
   const isAgentFlowMode = pathname.startsWith('/workflow-editor/')
   const isNewAgentFlow = pathname === '/workflow-editor/new'
   const agentFlowId = !isNewAgentFlow && isAgentFlowMode ? appID : null
+
+  // Initialize workflow meta from store when in agent flow mode
+  useEffect(() => {
+    if (isAgentFlowMode && !isNewAgentFlow) {
+      const storedName = workflowStore.getState().workflowName
+      const storedGoal = workflowStore.getState().workflowGoal
+      if (storedName)
+        setWorkflowName(storedName)
+      if (storedGoal)
+        setWorkflowGoal(storedGoal)
+    }
+  }, [isAgentFlowMode, isNewAgentFlow, workflowStore])
 
   const nodes = useNodes()
   const hasWorkflowNodes = nodes.length > 0
@@ -221,8 +234,8 @@ const FeaturesTrigger = () => {
 
           notify({ type: 'success', message: t('common.api.actionSuccess') })
 
-          // Redirect to edit page
-          router.push(`/workflow-editor/${result.agent_flow_id}`)
+          // Redirect to edit page using full page navigation to clear old state
+          window.location.href = `/workflow-editor/${result.agent_flow_id}`
         }
         else if (agentFlowId) {
           // Update existing agent flow

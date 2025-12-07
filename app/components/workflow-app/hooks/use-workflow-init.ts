@@ -108,6 +108,8 @@ export const useWorkflowInit = () => {
           conversationVariables: [],
           isWorkflowDataLoaded: true,
           shouldAutoLayout: true, // Auto-layout after loading agent flow
+          workflowName: agentFlowData.name,
+          workflowGoal: agentFlowData.goal,
         })
         setIsLoading(false)
         return

@@ -15,6 +15,10 @@ const useConfig = (id: string, payload: MessageNodeType) => {
       if (mode === 'strict') {
         draft.model = undefined
       }
+      // Initialize model with default values when switching to llm mode
+      else if (mode === 'llm' && !draft.model) {
+        draft.model = { name: 'gpt-4.1', temperature: 0.0 }
+      }
     })
     setInputs(newInputs)
   }, [inputs, setInputs])

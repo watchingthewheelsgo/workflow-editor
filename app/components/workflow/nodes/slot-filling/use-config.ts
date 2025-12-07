@@ -92,8 +92,16 @@ const useConfig = (id: string, payload: SlotFillingNodeType) => {
     const newInputs = produce(inputs, (draft) => {
       if (draft.validation) {
         draft.validation = undefined
-      } else {
-        draft.validation = { criteria: '', model: undefined }
+      }
+      else {
+        // Initialize validation with default model values
+        draft.validation = {
+          criteria: '',
+          model: {
+            name: 'gpt-4.1',
+            temperature: 0.0,
+          },
+        }
       }
     })
     setInputs(newInputs)

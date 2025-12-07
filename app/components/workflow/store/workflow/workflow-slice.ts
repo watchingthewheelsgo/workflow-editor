@@ -42,6 +42,10 @@ export type WorkflowSliceShape = {
   setShowImportDSLModal: (showImportDSLModal: boolean) => void
   fileUploadConfig?: FileUploadConfigResponse
   setFileUploadConfig: (fileUploadConfig: FileUploadConfigResponse) => void
+  workflowName?: string
+  setWorkflowName: (workflowName: string) => void
+  workflowGoal?: string
+  setWorkflowGoal: (workflowGoal: string) => void
 }
 
 export const createWorkflowSlice: StateCreator<WorkflowSliceShape> = set => ({
@@ -78,4 +82,8 @@ export const createWorkflowSlice: StateCreator<WorkflowSliceShape> = set => ({
   setShowImportDSLModal: showImportDSLModal => set(() => ({ showImportDSLModal })),
   fileUploadConfig: undefined,
   setFileUploadConfig: fileUploadConfig => set(() => ({ fileUploadConfig })),
+  workflowName: undefined,
+  setWorkflowName: workflowName => set(() => ({ workflowName })),
+  workflowGoal: undefined,
+  setWorkflowGoal: workflowGoal => set(() => ({ workflowGoal })),
 })
